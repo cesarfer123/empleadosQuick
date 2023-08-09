@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoja de Usuarios</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+</head>
+<body>
+    <h1>Hello World</h1>
+
+    
+  <!-- Add new Modal -->
+  <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Añadir Cliente</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form class="js-add-user-form" onsubmit="add_new(event)">
+            <div class="modal-body">
+                <label class="mt-2 d-block" style="cursor: pointer;">
+                    <img src="images/placeholder.jpg" class="js-add-image mx-auto d-block" style="width: 150px; height: 150px; object-fit: cover;" alt="">
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="inputGroupFile01">Upload</label>
+                        <input id="img" onchange="display_image(this.files[0])" type="file" class="form-control" required>
+                    </div>
+                    <script>
+                        function display_image(file){
+                            // console.log("file",file);
+                            document.querySelector(".js-add-image").src=URL.createObjectURL(file);
+                        }
+                    </script>
+                </label>
+                <div class="mt-2">
+                    <label for="name" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="name" placeholder="Nombre" required>
+                </div>
+                <div class="mt-2">
+                    <label for="age" class="form-label">Edad</label>
+                    <input type="text" class="form-control" id="age" placeholder="Edad" required>
+                </div>
+                <div class="mt-2">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
+                </div>
+                <div class="mt-2">
+                    <label for="city" class="form-label">Ciudad</label>
+                    <input type="text" class="form-control" id="city" placeholder="Ciudad" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </form>    
+      </div>
+    </div>
+  </div>
+
+  <!-- End Add new Modal -->
+
+    <div class="table-responsive col-md-10 mx-auto">
+        <h2 class="my-2 text-center">Hoja de calculo</h2>
+        <h4 class="my-2">CLientes</h4>
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>id</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Edad</th>
+                    <th>Imagen</th>
+                    <th>Ciudad</th>
+                    <th>Acciones <button class="btn btn-primary btn-sm" onclick="myModal.show()">Nuevo</button></th>
+                </tr>
+            </thead>
+            <tbody class="js-table-body">
+                
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
+<script src="js/bootstrap.min.js"></script>
+<script>
+
+    send_data({},"read");
+
+    function send_data(obj, type){
+        let form=new FormData();
+        for (const key in obj) {
+            form.append(key,obj[key]);
+        }
+        form.append("data_type",type)
+        let ajax=new XMLHttpRequest();
+        ajax.addEventListener("readystatechange",function(){
+            if(ajax.readyState==4){
+                if(ajax.status==200){
+                    
+                    handle_result(ajax.responseText);
+                }
+            }
+        });
+        ajax.open("POST","api.php",true);
+        ajax.send(form);
+        // console.log("form",form);
+    }
+
+    function handle_result(result){
+        let obj=JSON.parse(result);
+
+        if(typeof obj=="object"){
+            if(obj.data_type=="read"){
+                let tbody=document.querySelector(".js-table-body");
+                let str="";
+                if(typeof obj.data =="object"){
+
+                    for (let i = 0; i < obj.data.length; i++) {
+                        let row=obj.data[i];
+                        str+=`<tr><td>${row.id}</td>
+                            <td>${row.nombre}</td>
+                            <td>${row.email}</td>
+                            <td>${row.edad}</td>
+                            <td>${row.imagen}</td>
+                            <td>${row.ciudad}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm">Editar</button>
+                                <button class="btn btn-danger btn-sm">Eliminar</button>
+                            </td></tr>`;
+                        
+                    }
+                }else{
+                    str="<tr><td>Informacion no encontrada!</tr></td>"
+                }
+
+                tbody.innerHTML=str;
+
+            }else if(obj.data_type=="save"){
+                alert(obj.data);
+                send_data({},"read");
+            }
+        }
+    }
+
+    let myModal = new bootstrap.Modal(document.getElementById('exampleModal1'))
+    
+    function add_new(e)
+    {
+        e.preventDefault();
+        let obj={};
+        let inputs=e.currentTarget.querySelectorAll("input","select","textarea");
+        for (let i = 0; i < inputs.length; i++) {
+            if(inputs[i].type=="file"){
+
+                obj[inputs[i].id]=inputs[i].files[0];
+            }else{
+                obj[inputs[i].id]=inputs[i].value;
+
+            }
+            inputs[i].value="";
+            
+        }
+        console.log(obj);
+        send_data(obj,"save");
+        myModal.hide();
+    }
+
+</script>
