@@ -28,6 +28,11 @@ if(count($_POST)){
         $query=         "select * from users order by id desc";
         $result=        query($query);
         $info["data"]=  $result;
+    }else if($_POST["data_type"]=="delete"){
+        $id=(int)$_POST["id"];
+        $query=         "delete from users where id='$id' limit 1";
+        $result=        query($query);
+        $info["data"]=  "Fila Eliminada";
     }else if($_POST["data_type"]=="save"){
 
         $image="";
@@ -40,7 +45,7 @@ if(count($_POST)){
                     mkdir($folder,0777,true);
                 }
                 $path=$folder . time() . $_FILES["image"]["name"];
-                move_uploaded_file($_FILES["name"]["tmp_name"],$path);
+                move_uploaded_file($_FILES["image"]["tmp_name"],$path);
             }
             $image=$path;
         }

@@ -24,12 +24,20 @@
                     <img src="images/placeholder.jpg" class="js-add-image mx-auto d-block" style="width: 150px; height: 150px; object-fit: cover;" alt="">
                     <div class="input-group mb-3">
                         <label class="input-group-text" for="inputGroupFile01">Upload</label>
-                        <input id="img" onchange="display_image(this.files[0])" type="file" class="form-control" required>
+                        <input id="image" onchange="display_image(this.files[0])" type="file" class="form-control" required>
                     </div>
                     <script>
                         function display_image(file){
                             // console.log("file",file);
-                            document.querySelector(".js-add-image").src=URL.createObjectURL(file);
+                            let allowed=["jpg","jpeg","png"];
+                            let ext=file.name.split(".").pop();
+                            if(allowed.includes(ext.toLowerCase())){
+
+                                document.querySelector(".js-add-image").src=URL.createObjectURL(file);
+                                image_added=true;
+                            }else{
+                                alert("Formato no permitido, permitidos: " + allowed.toString());
+                            }
                         }
                     </script>
                 </label>
@@ -85,7 +93,9 @@
 </html>
 <script src="js/bootstrap.min.js"></script>
 <script>
-
+    let image_added=false;
+    let myModal = new bootstrap.Modal(document.getElementById('exampleModal1'));
+    
     send_data({},"read");
 
     function send_data(obj, type){
@@ -123,11 +133,11 @@
                             <td>${row.nombre}</td>
                             <td>${row.email}</td>
                             <td>${row.edad}</td>
-                            <td>${row.imagen}</td>
+                            <td><img src="${row.imagen}" style="width: 70px; height: 70px; object-fit: cover;"></td>
                             <td>${row.ciudad}</td>
                             <td>
                                 <button class="btn btn-primary btn-sm">Editar</button>
-                                <button class="btn btn-danger btn-sm">Eliminar</button>
+                                <button onclick="delete_row(${row.id})" class="btn btn-danger btn-sm">Eliminar</button>
                             </td></tr>`;
                         
                     }
@@ -140,19 +150,26 @@
             }else if(obj.data_type=="save"){
                 alert(obj.data);
                 send_data({},"read");
+            }else if(obj.data_type=="delete"){
+                alert(obj.data);
+                send_data({},"read");
             }
         }
     }
 
-    let myModal = new bootstrap.Modal(document.getElementById('exampleModal1'))
     
     function add_new(e)
     {
+        // validate
         e.preventDefault();
+        if(!image_added){
+            alert("Una imagen es requerida");
+            return;
+        }
         let obj={};
         let inputs=e.currentTarget.querySelectorAll("input","select","textarea");
         for (let i = 0; i < inputs.length; i++) {
-            if(inputs[i].type=="file"){
+            if(inputs[i].type=="file" && image_added){
 
                 obj[inputs[i].id]=inputs[i].files[0];
             }else{
@@ -162,9 +179,19 @@
             inputs[i].value="";
             
         }
-        console.log(obj);
+
+        image_added=false;
+        document.querySelector(".js-add-image").src="images/placeholder.jpg";
+        // console.log(obj);
         send_data(obj,"save");
         myModal.hide();
     }
 
+    function delete_row(id){
+        if(!confirm("Estas seguro de eliminar la fila: " +id+"?!")){
+            return
+        }
+        send_data({id:id},"delete");
+
+    }
 </script>
