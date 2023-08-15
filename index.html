@@ -7,11 +7,9 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Hello World</h1>
-
     
   <!-- Add new Modal -->
-  <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal fade" id="add-new-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -68,6 +66,102 @@
   </div>
 
   <!-- End Add new Modal -->
+  <!-- Edit Modal -->
+  <div class="modal fade" id="edit-new-modal" tabindex="-1" aria-labelledby="edit-new-modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="edit-new-modalLabel">Editar Cliente</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form class="js-edit-user-form" onsubmit="edit_row(event)">
+            <div class="modal-body">
+                <label class="mt-2 d-block" style="cursor: pointer;">
+                    <img src="images/placeholder.jpg" class="js-edit-image mx-auto d-block" style="width: 150px; height: 150px; object-fit: cover;" alt="">
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="inputGroupFile01">Upload</label>
+                        <input id="image" onchange="display_image_edit(this.files[0])" type="file" class="form-control">
+                    </div>
+                    <script>
+                        function display_image_edit(file){
+                            // console.log("file",file);
+                            let allowed=["jpg","jpeg","png"];
+                            let ext=file.name.split(".").pop();
+                            if(allowed.includes(ext.toLowerCase())){
+
+                                document.querySelector(".js-edit-image").src=URL.createObjectURL(file);
+                                image_added=true;
+                            }else{
+                                alert("Formato no permitido, permitidos: " + allowed.toString());
+                            }
+                        }
+                    </script>
+                </label>
+                <div class="mt-2">
+                    <label for="name" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" id="nombre" placeholder="Nombre" required>
+                </div>
+                <div class="mt-2">
+                    <label for="age" class="form-label">Edad</label>
+                    <input type="text" class="form-control" id="edad" placeholder="Edad" required>
+                </div>
+                <div class="mt-2">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" placeholder="name@example.com" required>
+                </div>
+                <div class="mt-2">
+                    <label for="city" class="form-label">Ciudad</label>
+                    <input type="text" class="form-control" id="ciudad" placeholder="Ciudad" required>
+                </div>
+                <input type="hidden" id="id">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+            </div>
+        </form>    
+      </div>
+    </div>
+  </div>
+
+  <!--End Edit Modal -->
+    <!-- View Modal -->
+    <div class="modal fade" id="view-new-modal" tabindex="-1" aria-labelledby="view-new-modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="view-new-modalLabel">Ver Cliente</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+                <div class="modal-body">
+                    <label class="mt-2 d-block" style="cursor: pointer;">
+                        <img src="images/placeholder.jpg" class="js-view-image mx-auto d-block" style="width: 100%; object-fit: cover;" alt="">
+                    </label>
+                    <div class="mt-2">
+                        <label for="name" class="form-label">Nombre</label>
+                        <div class="form-control" id="nombre" ></div>
+                    </div>
+                    <div class="mt-2">
+                        <label for="age" class="form-label">Edad</label>
+                        <div class="form-control" id="edad"></div>
+                    </div>
+                    <div class="mt-2">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="form-control" id="email"></div>
+                    </div>
+                    <div class="mt-2">
+                        <label for="city" class="form-label">Ciudad</label>
+                        <div class="form-control" id="ciudad"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+          </div>
+        </div>
+      </div>
+    
+      <!--End View Modal -->
 
     <div class="table-responsive col-md-10 mx-auto">
         <h2 class="my-2 text-center">Hoja de calculo</h2>
@@ -81,7 +175,7 @@
                     <th>Edad</th>
                     <th>Imagen</th>
                     <th>Ciudad</th>
-                    <th>Acciones <button class="btn btn-primary btn-sm" onclick="myModal.show()">Nuevo</button></th>
+                    <th>Acciones <button class="btn btn-primary btn-sm" onclick="addModal.show()">Nuevo</button></th>
                 </tr>
             </thead>
             <tbody class="js-table-body">
@@ -94,7 +188,9 @@
 <script src="js/bootstrap.min.js"></script>
 <script>
     let image_added=false;
-    let myModal = new bootstrap.Modal(document.getElementById('exampleModal1'));
+    const addModal = new bootstrap.Modal(document.getElementById('add-new-modal'),{});
+    const editModal = new bootstrap.Modal(document.getElementById('edit-new-modal'),{});
+    const viewModal = new bootstrap.Modal(document.getElementById('view-new-modal'),{});
     
     send_data({},"read");
 
@@ -119,7 +215,10 @@
     }
 
     function handle_result(result){
+        console.log(result);
         let obj=JSON.parse(result);
+        console.log(obj);
+
 
         if(typeof obj=="object"){
             if(obj.data_type=="read"){
@@ -136,7 +235,8 @@
                             <td><img src="${row.imagen}" style="width: 70px; height: 70px; object-fit: cover;"></td>
                             <td>${row.ciudad}</td>
                             <td>
-                                <button class="btn btn-primary btn-sm">Editar</button>
+                                <button onclick="get_view_row(${row.id});viewModal.show()" class="btn btn-primary btn-sm">Ver</button>
+                                <button onclick="get_edit_row(${row.id});editModal.show()" class="btn btn-primary btn-sm">Editar</button>
                                 <button onclick="delete_row(${row.id})" class="btn btn-danger btn-sm">Eliminar</button>
                             </td></tr>`;
                         
@@ -153,6 +253,49 @@
             }else if(obj.data_type=="delete"){
                 alert(obj.data);
                 send_data({},"read");
+            }
+            else if(obj.data_type=="edit"){
+                alert(obj.data);
+                send_data({},"read");
+            }else if(obj.data_type=="get-edit-row"){
+                let row=obj.data;
+                console.log("row",row);
+                if(typeof row=="object"){
+
+                    let myModal=document.querySelector("#edit-new-modal"); 
+                    console.log("editmodal",myModal);
+                    for (const key in row) {
+                        if(key=="imagen")
+                            document.querySelector(".js-edit-image").src=row[key];
+                        
+                        let input=myModal.querySelector("#"+key);
+                        if(input!=null){
+
+                            if(key!="imagen"){
+                                input.value=row[key];
+                            }   
+                        }
+                    }
+                }
+            }else if(obj.data_type=="get-view-row"){
+                let row=obj.data;
+                if(typeof row=="object"){
+
+                    let myModal=document.querySelector("#view-new-modal"); 
+                  
+                    for (const key in row) {
+                        if(key=="imagen")
+                            document.querySelector(".js-view-image").src=row[key];
+                        
+                        let input=myModal.querySelector("#"+key);
+                        if(input!=null){
+
+                            if(key!="imagen"){
+                                input.innerHTML=row[key];
+                            }   
+                        }
+                    }
+                }
             }
         }
     }
@@ -184,7 +327,32 @@
         document.querySelector(".js-add-image").src="images/placeholder.jpg";
         // console.log(obj);
         send_data(obj,"save");
-        myModal.hide();
+        addModal.hide();
+    }
+
+    function edit_row(e)
+    {
+        e.preventDefault();
+        let obj={};
+        let inputs=e.currentTarget.querySelectorAll("input","select","textarea");
+        for (let i = 0; i < inputs.length; i++) {
+            if(inputs[i].type=="file" && image_added){
+
+                obj[inputs[i].id]=inputs[i].files[0];
+            }else{
+                obj[inputs[i].id]=inputs[i].value;
+
+            }
+            inputs[i].value="";
+            
+        }
+        console.log("obj",obj);
+
+        image_added=false;
+        document.querySelector(".js-add-image").src="images/placeholder.jpg";
+ 
+        send_data(obj,"edit");
+        editModal.hide();
     }
 
     function delete_row(id){
@@ -194,4 +362,11 @@
         send_data({id:id},"delete");
 
     }
-</script>
+
+    function get_edit_row(id){
+        send_data({id:id},"get-edit-row")
+    }
+    function get_view_row(id){
+        send_data({id:id},"get-view-row")
+    }
+</script>                                                                                                
